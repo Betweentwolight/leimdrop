@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KappaDrop</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            dark: "#0f0f0f",
+            accent: "#3b82f6",
+            card: "#1f1f1f"
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-dark text-white min-h-screen flex items-center justify-center px-4">
+  <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data"
+        class="bg-card p-8 rounded-2xl shadow-xl w-full max-w-xl text-center space-y-4 border border-gray-700 transition-all hover:scale-[1.01] duration-300">
+    <h1 class="text-3xl font-bold">📁 KappaDrop</h1>
+    <p class="text-gray-400 text-sm">Перетащи файл или выбери его вручную. Поддержка до 10 МБ.</p>
+    <input type="file" name="file" id="fileInput" required
+           class="w-full text-sm file:bg-accent file:text-white file:rounded file:px-4 file:py-2 file:border-0 bg-gray-800 text-gray-300 rounded-lg">
+    <button type="submit"
+            class="w-full bg-accent hover:bg-blue-500 text-white py-2 px-4 rounded-lg transition-all">Загрузить</button>
+    <p id="status" class="text-gray-400 text-sm"></p>
+  </form>
+  <script src="/js/upload.js"></script>
+</body>
+</html>
