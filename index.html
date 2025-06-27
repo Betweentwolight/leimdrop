@@ -1,64 +1,41 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>leimdrop — Поделиться файлами</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FileDrop</title>
+  <link rel="stylesheet" href="/css/style.css" />
 </head>
-<body class="bg-gray-900 text-white flex flex-col items-center min-h-screen p-6">
-  <h1 class="text-4xl font-bold mt-12 mb-6 text-center">🧷 leimdrop — Поделись файлом онлайн</h1>
-
-  <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-xl">
-    <form id="uploadForm" class="flex flex-col space-y-4">
-      <input type="file" id="fileInput" class="bg-gray-700 p-2 rounded cursor-pointer text-white" required />
-      <button type="submit" class="bg-green-600 hover:bg-green-700 transition rounded p-2 text-lg font-semibold">
-        Загрузить и получить ссылку
-      </button>
+<body>
+  <div class="container">
+    <h1>📤 FileDrop</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+      <input type="file" name="file" id="fileInput" required />
+      <button type="submit">Upload</button>
     </form>
-
-    <div id="result" class="mt-6 hidden">
-      <p class="mb-2 font-medium">🔗 Ссылка для друзей:</p>
-      <input id="shareLink" class="w-full p-2 rounded bg-gray-700 text-white" readonly />
-      <p class="text-sm text-gray-400 mt-2">Можно отправить ссылку другу — он откроет файл онлайн.</p>
+    <div id="linkContainer" class="hidden">
+      <p>🔗 Your file link:</p>
+      <input type="text" id="fileLink" readonly />
     </div>
   </div>
-
-  <footer class="mt-auto pt-12 text-sm text-gray-400 text-center">
-    leimdrop — Через File.io. Файлы удаляются автоматически через 1 скачивание (или 1 день)
-  </footer>
-
   <script>
-    const uploadForm = document.getElementById("uploadForm");
-    const fileInput = document.getElementById("fileInput");
-    const resultBlock = document.getElementById("result");
-    const shareLink = document.getElementById("shareLink");
+    const form = document.getElementById('uploadForm');
+    const fileInput = document.getElementById('fileInput');
+    const fileLink = document.getElementById('fileLink');
+    const linkContainer = document.getElementById('linkContainer');
 
-    uploadForm.addEventListener("submit", async (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const file = fileInput.files[0];
-      if (!file) return alert("Выберите файл");
-
       const formData = new FormData();
-      formData.append("file", file);
-
-      shareLink.value = "Загрузка...";
-      resultBlock.classList.remove("hidden");
-
-      try {
-        const res = await fetch("https://file.io/?expires=1d", {
-          method: "POST",
-          body: formData,
-        });
-        const data = await res.json();
-        if (data.success) {
-          shareLink.value = data.link;
-        } else {
-          shareLink.value = "Ошибка загрузки 😢";
-        }
-      } catch (err) {
-        shareLink.value = "Ошибка соединения 😢";
-      }
+      formData.append('file', fileInput.files[0]);
+      const res = await fetch('/upload', {
+        method: 'POST',
+        body: formData
+      });
+      const json = await res.json();
+      const url = location.origin + '/file/' + json.filename;
+      fileLink.value = url;
+      linkContainer.classList.remove('hidden');
     });
   </script>
 </body>
