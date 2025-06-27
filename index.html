@@ -1,35 +1,65 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KappaDrop</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>leimdrop — Поделиться файлами</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            dark: "#0f0f0f",
-            accent: "#3b82f6",
-            card: "#1f1f1f"
-          }
-        }
-      }
-    }
-  </script>
 </head>
-<body class="bg-dark text-white min-h-screen flex items-center justify-center px-4">
-  <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data"
-        class="bg-card p-8 rounded-2xl shadow-xl w-full max-w-xl text-center space-y-4 border border-gray-700 transition-all hover:scale-[1.01] duration-300">
-    <h1 class="text-3xl font-bold">📁 KappaDrop</h1>
-    <p class="text-gray-400 text-sm">Перетащи файл или выбери его вручную. Поддержка до 10 МБ.</p>
-    <input type="file" name="file" id="fileInput" required
-           class="w-full text-sm file:bg-accent file:text-white file:rounded file:px-4 file:py-2 file:border-0 bg-gray-800 text-gray-300 rounded-lg">
-    <button type="submit"
-            class="w-full bg-accent hover:bg-blue-500 text-white py-2 px-4 rounded-lg transition-all">Загрузить</button>
-    <p id="status" class="text-gray-400 text-sm"></p>
-  </form>
-  <script src="/js/upload.js"></script>
+<body class="bg-gray-900 text-white flex flex-col items-center min-h-screen p-6">
+  <h1 class="text-4xl font-bold mt-12 mb-6 text-center">🧷 leimdrop — Поделись файлом онлайн</h1>
+
+  <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-xl">
+    <form id="uploadForm" class="flex flex-col space-y-4">
+      <input type="file" id="fileInput" class="bg-gray-700 p-2 rounded cursor-pointer text-white" required />
+      <button type="submit" class="bg-green-600 hover:bg-green-700 transition rounded p-2 text-lg font-semibold">
+        Загрузить и получить ссылку
+      </button>
+    </form>
+
+    <div id="result" class="mt-6 hidden">
+      <p class="mb-2 font-medium">🔗 Ссылка для друзей:</p>
+      <input id="shareLink" class="w-full p-2 rounded bg-gray-700 text-white" readonly />
+      <p class="text-sm text-gray-400 mt-2">Можно отправить ссылку другу — он откроет файл онлайн.</p>
+    </div>
+  </div>
+
+  <footer class="mt-auto pt-12 text-sm text-gray-400 text-center">
+    leimdrop — Через File.io. Файлы удаляются автоматически через 1 скачивание (или 1 день)
+  </footer>
+
+  <script>
+    const uploadForm = document.getElementById("uploadForm");
+    const fileInput = document.getElementById("fileInput");
+    const resultBlock = document.getElementById("result");
+    const shareLink = document.getElementById("shareLink");
+
+    uploadForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const file = fileInput.files[0];
+      if (!file) return alert("Выберите файл");
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      shareLink.value = "Загрузка...";
+      resultBlock.classList.remove("hidden");
+
+      try {
+        const res = await fetch("https://file.io/?expires=1d", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+        if (data.success) {
+          shareLink.value = data.link;
+        } else {
+          shareLink.value = "Ошибка загрузки 😢";
+        }
+      } catch (err) {
+        shareLink.value = "Ошибка соединения 😢";
+      }
+    });
+  </script>
 </body>
 </html>
